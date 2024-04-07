@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/ln_item_song"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_song"
+            android:layout_width="80dp"
+            android:src="@drawable/img_sontung"
+            android:layout_height="60dp"/>
+
+        <TextView
+            android:id="@+id/tv_song"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:text="@string/txt_name_song"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            android:textStyle="normal"
+            tools:ignore="TextSizeCheck" />
+    </TableRow>
+
+</LinearLayout>
