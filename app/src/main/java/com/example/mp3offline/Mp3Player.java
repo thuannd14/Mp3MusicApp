@@ -1,13 +1,18 @@
 package com.example.mp3offline;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import com.example.mp3offline.model.Song;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Mp3Player {
@@ -18,11 +23,31 @@ public class Mp3Player {
     private static final String TAG = Mp3Player.class.getName();
     private static Mp3Player instance;
     private List<Song> songList = new ArrayList<>();
-    private final MediaPlayer mediaPlayer = new MediaPlayer();
+    private final MediaPlayer mediaPlayer;
     private int curSong;
 
-    private Mp3Player() {
+    private MediaPlayer.OnCompletionListener onCompletionListener;
 
+    public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
+        this.onCompletionListener = onCompletionListener;
+    }
+
+    private Mp3Player() {
+        mediaPlayer = new MediaPlayer();
+
+        // vao thi phai bam bat dau.
+        if(curSong != 0){
+            mediaPlayer.setOnCompletionListener(mp -> {
+                next();
+                onCompletionListener.onCompletion(null);
+            });
+        }
+        // DUNG NHAC KHI CO CUOC GOI DEN.
+        mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build());
     }
 
     public static Mp3Player getInstance() {
@@ -130,4 +155,42 @@ public class Mp3Player {
         return curSong;
     }
 
+    public String getCurTimeText() {
+        try{
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+            return dateFormat.format(new Date(mediaPlayer.getCurrentPosition()));
+        }catch (Exception  e){
+            e.printStackTrace();
+        }
+        return "--";
+    }
+
+    public String getTotalTimeText() {
+        try{
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+            return dateFormat.format(new Date(mediaPlayer.getDuration()));
+        }catch (Exception  e){
+            e.printStackTrace();
+        }
+        return "--";
+    }
+
+    public int getCurTime(){
+        return mediaPlayer.getCurrentPosition();
+    }
+
+    public int getTotalTime(){
+        return mediaPlayer.getDuration();
+    }
+
+
+    public Song getCurIndex() {
+        return songList.get(curSong);
+    }
+
+    public void seekTo(int progress) {
+        if(mediaPlayer.isPlaying()){
+            mediaPlayer.seekTo(progress);
+        }
+    }
 }
