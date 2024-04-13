@@ -1,15 +1,12 @@
 package com.example.mp3offline.view.act;
 
 import android.Manifest;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.SeekBar;
-
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
+
 
 import com.example.mp3offline.App;
 import com.example.mp3offline.Mp3Player;

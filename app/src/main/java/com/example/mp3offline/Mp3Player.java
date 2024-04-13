@@ -19,35 +19,29 @@ public class Mp3Player {
     public static final int STATE_IDLE = 1;
     public static final int STATE_PLAYING = 2;
     public static final int STATE_PAUSED = 3;
-    private static int state = STATE_IDLE;
     private static final String TAG = Mp3Player.class.getName();
+    private static int state = STATE_IDLE;
     private static Mp3Player instance;
-    private List<Song> songList = new ArrayList<>();
     private final MediaPlayer mediaPlayer;
+    private List<Song> songList = new ArrayList<>();
     private int curSong;
 
     private MediaPlayer.OnCompletionListener onCompletionListener;
-
-    public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
-        this.onCompletionListener = onCompletionListener;
-    }
 
     private Mp3Player() {
         mediaPlayer = new MediaPlayer();
 
         // vao thi phai bam bat dau.
-        if(curSong != 0){
-            mediaPlayer.setOnCompletionListener(mp -> {
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
                 next();
+                Log.i(TAG, "NEXT BAI: " + curSong);
                 onCompletionListener.onCompletion(null);
-            });
-        }
+            }
+        });
         // DUNG NHAC KHI CO CUOC GOI DEN.
-        mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
-                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build());
+        mediaPlayer.setAudioAttributes(new AudioAttributes.Builder().setLegacyStreamType(AudioManager.STREAM_MUSIC).setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
     }
 
     public static Mp3Player getInstance() {
@@ -55,6 +49,14 @@ public class Mp3Player {
             instance = new Mp3Player();
         }
         return instance;
+    }
+
+    public static int getState() {
+        return state;
+    }
+
+    public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
+        this.onCompletionListener = onCompletionListener;
     }
 
     // tai nhac tu thu muc download cua dien thoai.
@@ -96,7 +98,7 @@ public class Mp3Player {
             try {
                 mediaPlayer.setDataSource(songList.get(curSong).path);
                 Log.i(TAG, "Path: " + songList.get(curSong).path);
-                        mediaPlayer.prepare();
+                mediaPlayer.prepare();
                 mediaPlayer.start();
                 state = STATE_PLAYING;
             } catch (Exception e) {
@@ -105,43 +107,36 @@ public class Mp3Player {
         } else if (state == STATE_PAUSED) {
             mediaPlayer.start();
             state = STATE_PLAYING;
-        }else {
+        } else {
             mediaPlayer.pause();
             state = STATE_PAUSED;
         }
     }
 
-
-
-    public void next(){
+    public void next() {
         curSong++;
         App.getInstance().getStorage().setCurSong(curSong);
-        if(curSong == songList.size()){
+        if (curSong == songList.size()) {
             curSong = 0;
         }
         state = STATE_IDLE;
         play();
     }
 
-    public void back(){
+    public void back() {
         curSong--;
         App.getInstance().getStorage().setCurSong(curSong);
-        if(curSong == 0){
-            curSong = songList.size()-1;
+        if (curSong == 0) {
+            curSong = songList.size() - 1;
         }
         state = STATE_IDLE;
         play();
     }
 
-    public static int getState() {
-        return state;
-    }
-
-
     // ấn vào bài này thì phát luôn bài đó.
     public void findSong(String title) {
-        for(int i=0;i<songList.size();i++){
-            if(songList.get(i).title.equals(title)){
+        for (int i = 0; i < songList.size(); i++) {
+            if (songList.get(i).title.equals(title)) {
                 curSong = i;
                 App.getInstance().getStorage().setCurSong(curSong);
                 break;
@@ -156,30 +151,30 @@ public class Mp3Player {
     }
 
     public String getCurTimeText() {
-        try{
+        try {
             @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
             return dateFormat.format(new Date(mediaPlayer.getCurrentPosition()));
-        }catch (Exception  e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "--";
     }
 
     public String getTotalTimeText() {
-        try{
+        try {
             @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
             return dateFormat.format(new Date(mediaPlayer.getDuration()));
-        }catch (Exception  e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "--";
     }
 
-    public int getCurTime(){
+    public int getCurTime() {
         return mediaPlayer.getCurrentPosition();
     }
 
-    public int getTotalTime(){
+    public int getTotalTime() {
         return mediaPlayer.getDuration();
     }
 
@@ -189,7 +184,7 @@ public class Mp3Player {
     }
 
     public void seekTo(int progress) {
-        if(mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying() && mediaPlayer != null) {
             mediaPlayer.seekTo(progress);
         }
     }
